@@ -1,13 +1,17 @@
-const { Telegraf } = require('telegraf')
+const TelegramBot = require('node-telegram-bot-api');
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.start((ctx) => {
-    ctx.reply('Привет! Я бот-риск-менеджер. Я могу помочь вам вычислить количество монет для покупки или продажи.');
-    ctx.reply('Использование: /trade <баланс> <точка входа> <уровень стопа> <процент риска>');
-})
+const token = process.env.BOT_TOKEN;
 
-bot.command('trade', (ctx) => {
-    const args = ctx.message.text.split(' ').slice(1);
+const bot = new TelegramBot(token, {polling: true});
+
+bot.onText(/\/start/, (msg) => {
+    bot.sendMessage(msg.chat.id, 'Привет! Я бот-риск-менеджер. Я могу помочь вам вычислить количество монет для покупки или продажи.');
+    bot.sendMessage(msg.chat.id, 'Использование: /trade <баланс> <точка входа> <уровень стопа> <процент риска>');
+});
+
+bot.onText(/\/trade (.+)/, (msg, match) => {
+    const chatId = msg.chat.id;
+    const args = match[1].split(' ');
 
     try {
         const balance = parseFloat(args[0]);
@@ -21,14 +25,8 @@ bot.command('trade', (ctx) => {
 
         const takeProfitLevel = entryPoint + (3 * distance);
 
-        ctx.reply(`Количество монет для покупки или продажи: ${volume.toFixed(2)}\nУровень тейк-профита: ${takeProfitLevel}`);
+        bot.sendMessage(chatId, `Количество монет для покупки или продажи: ${volume.toFixed(2)}\nУровень тейк-профита: ${takeProfitLevel}`);
     } catch (error) {
-        ctx.reply('Использование: /trade <баланс> <точка входа> <уровень стопа> <процент риска>');
+        bot.sendMessage(chatId, 'Использование: /trade <баланс> <точка входа> <уровень стопа> <процент риска>');
     }
-})
-
-bot.launch()
-
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
+});
