@@ -1,0 +1,12 @@
+{
+  "name": "telegram-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "telegram_bot_risk_manager.js",
+  "scripts": {
+    "start": "node telegram_bot_risk_manager.js"
+  },
+  "dependencies": {
+    "telegraf": "^4.4.3"
+  }
+}
